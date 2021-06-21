@@ -24,25 +24,17 @@
       (s/replace #"\"" "")
       (s/split #"\r\n")))
 
+(defn format-amount [amount-string]
+  (let [amount (re-find #"\d+\.\d+" amount-string)]
+    (if (s/blank? amount) nil (Double/parseDouble amount))))
+
 (defn format-transaction [{:keys [date type desc out in bal]}]
   {:date (j/local-date "dd MMM yyyy" date)
    :type type
    :desc desc
-   :out out
-   :in in
-   :bal bal})
-
-(defn read-statement-file-old [name]
-  (let [it-lines (get-quoted-csv-file-lines {:filename name})
-        split-lines (map #(s/split % #",") it-lines)
-        transactions (drop 4 split-lines)
-        headers (keywordise-headers (first transactions))]
-    (println "===============================")
-    (prn transactions)
-    (println "===============================")
-    (prn headers)
-    (prn (map #(zipmap headers %) (rest transactions)))))
-
+   :out (format-amount out)
+   :in (format-amount in)
+   :bal (format-amount bal)})
 
 (defn get-statement-data [filename]
   (let [all-data (->> (:filename filename)
