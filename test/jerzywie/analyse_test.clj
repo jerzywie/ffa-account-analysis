@@ -11,3 +11,16 @@
       "Transfer from      Only this" "Only this"
       "Just this bit" "Just this bit")))
 
+
+(deftest process-name-tests
+  (testing "process-name handles name and description correctly"
+    (are [map result] (= (sut/process-name map) result)
+      {:date :adate :type "Bank credit COCTEAU TWINS" :desc "Bank credit COCTEAU TWINS"}
+      {:name "COCTEAU TWINS" :group nil}
+
+      {:type "Transfer from FRED BLOGGS" :desc "Transfer from FRED BLOGGS"}
+      {:name "FRED BLOGGS" :group nil}
+
+      {:type "Transfer from FRED BLOGGS" :desc "112233 78903456"}
+      {:name "FRED BLOGGS" :group "112233 78903456"})))
+
