@@ -43,6 +43,24 @@
                          :filterby (if (nil? group) :names :group))]
     (swap! name-cache assoc key new-value)))
 
+(defn make-filter-fn [{:keys [names group filterby]}]
+  (case filterby
+    :names (fn [txn] (= (:name txn) (first names)))
+    :group (fn [txn] (= (:group txn) group))))
+
+(defn add-transactions [txns key]
+  (let [entity (get @name-cache key)
+        filter-fn (make-filter-fn entity)
+        filtered-txns (filter filter-fn txns)]
+    (swap! name-cache assoc key (assoc entity :txns filtered-txns))))
+
 (defn process-income [transactions]
-  (let [in-txns (filter #(nil? (:out %)) transactions)]
-   in-txns))
+  (reset! name-cache empty-name-cache)
+  (let [raw-in-txns (filter #(nil? (:out %)) transactions)
+        in-txns (map (fn [t] (let [ng (process-name t)]
+                              (-> t (dissoc :out :bal)
+                                  (assoc :name (:name ng) :group (:group ng)))))
+                     raw-in-txns)]
+    (doall (map cache-name in-txns))
+    (doall (map (partial add-transactions in-txns) (keys @name-cache)))
+    in-txns))
