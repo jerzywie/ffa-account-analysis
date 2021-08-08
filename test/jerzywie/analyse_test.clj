@@ -11,6 +11,13 @@
       "Transfer from      Only this" "Only this"
       "Just this bit" "Just this bit")))
 
+(deftest make-group-tests
+  (testing "make-group extracts a valid group id"
+    (are [name desc result] (= (sut/make-group name desc) result)
+      "Same" "Same" nil
+      "This is a name" "This is the description" nil
+      "AN Other" "Credit 24 May 2021" nil
+      "Fred Bloggs" "123456 87654321" "123456 87654321")))
 
 (deftest process-name-tests
   (testing "process-name handles name and description correctly"

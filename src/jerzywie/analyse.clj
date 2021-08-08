@@ -3,7 +3,9 @@
             [java-time :as j]
             [java-time.interval :as ji]))
 
-(def name-cache (atom {}))
+(def empty-name-cache {})
+
+(def name-cache (atom empty-name-cache))
 
 (def empty-name {:names #{} :group nil :filterby nil})
 
@@ -16,10 +18,18 @@
       (s/replace transfer-from "")
       s/trim))
 
+(defn make-group [name desc-less-prefix]
+  "If the name and description are the same, then group is nil
+   If they are different, then try for a group id by extracting account details"
+  (let [maybe-group (if (not= name desc-less-prefix) desc-less-prefix nil)]
+    (if (some? maybe-group)
+      (re-find #"\d{6} \d{8}" maybe-group)
+      nil)))
+
 (defn process-name [{:keys [type desc]}]
   (let [name (strip-prefix type)
         strip-desc (strip-prefix desc)
-        group (if (not= name strip-desc) strip-desc nil)]
+        group (make-group name strip-desc)]
     {:name name :group group}))
 
 (defn make-key [{:keys [name group]}]
