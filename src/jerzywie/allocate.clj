@@ -1,4 +1,4 @@
-(ns jerzywie.analyse
+(ns jerzywie.allocate
   (:require [clojure.string :as s]
             [java-time :as j]
             [java-time.interval :as ji]))

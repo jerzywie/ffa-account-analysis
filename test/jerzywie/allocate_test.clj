@@ -1,5 +1,5 @@
-(ns jerzywie.analyse-test
-  (:require [jerzywie.analyse :as sut]
+(ns jerzywie.allocate-test
+  (:require [jerzywie.allocate :as sut]
             [clojure.test :refer :all]))
 
 (deftest strip-prefix-tests
