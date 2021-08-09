@@ -1,11 +1,8 @@
 (ns jerzywie.allocate
-  (:require [clojure.string :as s]
+  (:require [jerzywie.cache :as nc]
+            [clojure.string :as s]
             [java-time :as j]
             [java-time.interval :as ji]))
-
-(def empty-name-cache {})
-
-(def name-cache (atom empty-name-cache))
 
 (def empty-name {:names #{} :group nil :filterby nil})
 
@@ -37,11 +34,11 @@
 
 (defn cache-name [{:keys [name group] :as m}]
   (let [key (make-key m)
-        value (get @name-cache key empty-name)
+        value (nc/get-cache-value key empty-name)
         new-value (assoc value :names (conj (:names value) name)
                          :group group
                          :filterby (if (nil? group) :names :group))]
-    (swap! name-cache assoc key new-value)))
+    (nc/cache! key new-value)))
 
 (defn make-filter-fn [{:keys [names group filterby]}]
   (case filterby
@@ -49,18 +46,18 @@
     :group (fn [txn] (= (:group txn) group))))
 
 (defn add-transactions [txns key]
-  (let [entity (get @name-cache key)
+  (let [entity (nc/get-cache-value key)
         filter-fn (make-filter-fn entity)
         filtered-txns (filter filter-fn txns)]
-    (swap! name-cache assoc key (assoc entity :txns filtered-txns))))
+    (nc/cache! key (assoc entity :txns filtered-txns))))
 
 (defn process-income [transactions]
-  (reset! name-cache empty-name-cache)
+  (nc/empty-cache)
   (let [raw-in-txns (filter #(nil? (:out %)) transactions)
         in-txns (map (fn [t] (let [ng (process-name t)]
                               (-> t (dissoc :out :bal)
                                   (assoc :name (:name ng) :group (:group ng)))))
                      raw-in-txns)]
     (doall (map cache-name in-txns))
-    (doall (map (partial add-transactions in-txns) (keys @name-cache)))
+    (doall (map (partial add-transactions in-txns) (nc/get-cache-keys)))
     in-txns))

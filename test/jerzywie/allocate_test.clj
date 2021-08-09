@@ -1,5 +1,6 @@
 (ns jerzywie.allocate-test
   (:require [jerzywie.allocate :as sut]
+            [jerzywie.cache :as nc]
             [clojure.test :refer :all]))
 
 (deftest strip-prefix-tests
@@ -32,12 +33,12 @@
       {:name "FRED BLOGGS" :group "112233 78903456"})))
 
 (defn cache-two-unrelated [do-reset?]
-  (if do-reset? (reset! sut/name-cache {}))
+  (if do-reset? (nc/empty-cache))
   (sut/cache-name {:name "A" :group nil})
   (sut/cache-name {:name "B" :group nil}))
 
 (defn cache-two-related [do-reset?]
-  (if do-reset? (reset! sut/name-cache {}))
+  (if do-reset? (nc/empty-cache))
   (sut/cache-name {:name "C" :group "c-group"})
   (sut/cache-name {:name "D" :group "c-group"}))
 
@@ -66,7 +67,8 @@
     (let [cache (cache-two-related true)]
       (is (= (-> cache vals count) 1))
       (is (= (->> cache vals first :group) "c-group"))
-      (is (= (-> cache vals first :filterby))) :group))
+      (is (= (-> cache vals first :filterby) :group))
+      (is (= (-> cache vals first :names) #{"C" "D"}))))
 
   (testing "more cache-name tests"
     (let [_ (cache-two-related true)
