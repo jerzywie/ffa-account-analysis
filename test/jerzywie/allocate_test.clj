@@ -1,7 +1,10 @@
 (ns jerzywie.allocate-test
   (:require [jerzywie.allocate :as sut]
+            [jerzywie.test-util :as util]
             [jerzywie.cache :as nc]
             [clojure.test :refer :all]))
+
+(use-fixtures :each util/start-with-empty-cache)
 
 (deftest strip-prefix-tests
   (testing "strip-prefix behaves correctly"
@@ -32,13 +35,11 @@
       {:type "Transfer from FRED BLOGGS" :desc "112233 78903456"}
       {:name "FRED BLOGGS" :group "112233 78903456"})))
 
-(defn cache-two-unrelated [do-reset?]
-  (if do-reset? (nc/empty-cache))
+(defn cache-two-unrelated []
   (sut/cache-name {:name "A" :group nil})
   (sut/cache-name {:name "B" :group nil}))
 
-(defn cache-two-related [do-reset?]
-  (if do-reset? (nc/empty-cache))
+(defn cache-two-related []
   (sut/cache-name {:name "C" :group "c-group"})
   (sut/cache-name {:name "D" :group "c-group"}))
 
@@ -55,25 +56,28 @@
 
       {:name "TRIO" :group "AGROUP"}
       (fn [r] (-> (vals r) count))
-      3))
+      3)))
 
+(deftest cache-name-tests-unrelated-names
   (testing "cache-name caches unrelated names correctly"
-    (let [cache (cache-two-unrelated true)]
+    (let [cache (cache-two-unrelated)]
       (is (= (-> cache vals count) 2))
       (is (nil? (->> cache vals second :group)))
-      (is (= (-> cache vals second :filterby) :names))))
+      (is (= (-> cache vals second :filterby) :names)))))
 
+(deftest cache-name-tests-related-names
   (testing "cache-name caches related names correctly"
-    (let [cache (cache-two-related true)]
+    (let [cache (cache-two-related)]
       (is (= (-> cache vals count) 1))
       (is (= (->> cache vals first :group) "c-group"))
       (is (= (-> cache vals first :filterby) :group))
-      (is (= (-> cache vals first :names) #{"C" "D"}))))
+      (is (= (-> cache vals first :names) #{"C" "D"})))))
 
+(deftest cache-name-tests-related-and-unrelated
   (testing "more cache-name tests"
-    (let [_ (cache-two-related true)
-          cache (cache-two-unrelated false)
-          cache2 (cache-two-unrelated false)]
+    (let [_ (cache-two-related)
+          cache (cache-two-unrelated)
+          cache2 (cache-two-unrelated)]
       (is (= (-> cache vals count) 3))
       (is (= (-> cache vals first :group) "c-group"))
       (is (= (-> cache vals first :filterby) :group))
