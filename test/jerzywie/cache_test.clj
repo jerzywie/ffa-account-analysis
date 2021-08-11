@@ -1,12 +1,9 @@
 (ns jerzywie.cache-test
   (:require [jerzywie.cache :as sut]
+            [jerzywie.test-util :as util]
             [clojure.test :refer :all]))
 
-(defn start-with-empty-cache [f]
-  (sut/empty-cache)
-  (f))
-
-(use-fixtures :each start-with-empty-cache)
+(use-fixtures :each util/start-with-empty-cache)
 
 (deftest cache-tests
   (is (nil? (sut/get-cache-value "nonesuch")))

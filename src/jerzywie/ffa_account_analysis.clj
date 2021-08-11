@@ -5,7 +5,7 @@
 (defn -main
   "Analyse transactions in downloaded transactions csv-file."
   [& args]
-  (let [filename "/Users/jerzy/Downloads/Statement Download 2021-May-25 10-10-29.csv"
+  (let [file-name  "resources/Statement Download 2021-Aug-08.csv"
         local-file "resources/test-transactions.csv"
-        statement-data (csv/get-statement-data {:filename local-file})]
+        statement-data (csv/get-statement-data {:filename file-name})]
     statement-data))

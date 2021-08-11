@@ -1,8 +1,6 @@
 (ns jerzywie.allocate
   (:require [jerzywie.cache :as nc]
-            [clojure.string :as s]
-            [java-time :as j]
-            [java-time.interval :as ji]))
+            [clojure.string :as s]))
 
 (def empty-name {:names #{} :group nil :filterby nil})
 
