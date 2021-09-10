@@ -2,6 +2,9 @@
   (:require [jerzywie.csv :as sut]
             [clojure.test :refer :all]))
 
+(def test-csv-file "resources/test-transactions.csv")
+(def expected-keys '(:accinfo :txns))
+(def expected-txns-count 58)
 
 (deftest keywordise-headers-converts-to-correct-headers
   (testing "keywordise-headers converts to correct headers."
@@ -20,3 +23,9 @@
           fmt-transaction (sut/format-transaction raw-transaction)
           expected {:date (java.time.LocalDate/of 2021 05 12) :type "Bank credit Billy Holiday", :desc "Bank credit Billy Holiday", :out nil, :in 100.00, :bal 640.56}]
       (is (= fmt-transaction) expected))))
+
+(deftest get-statement-data-tests
+  (let [sd (sut/get-statement-data {:filename test-csv-file})]
+    (is (= (count (keys sd)) (count expected-keys)))
+    (is (= (keys sd) expected-keys))
+    (is (= (count (:txns sd)) expected-txns-count))))
