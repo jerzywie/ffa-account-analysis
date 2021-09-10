@@ -26,5 +26,10 @@
     [2021  8  3] [2021  8  8] :irregular
     [2021  8  3] [2021  8 12] :irregular))
 
-(deftest analyse-donations-tests
-  ())
+(def weekly-first-sept [{:date (md [2021 9 1]) :freq #{:weekly}}])
+
+(deftest analyse-recency-tests
+  (are [donations date result] (contains? (sut/analyse-recency donations date) :current)
+    weekly-first-sept (md [2021 9 8]) true
+    weekly-first-sept (md [2021 9 5]) true
+    weekly-first-sept (md [2021 9 10]) true))
