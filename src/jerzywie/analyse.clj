@@ -34,3 +34,6 @@
         amount-cache (reduce (fn [amounts {:keys [in]}] (conj amounts in)) #{} txns)]
     (map (fn [amount] (analyse-time-intervals txns amount)) amount-cache)
     ))
+
+(defn analyse-all-donations []
+  (map (partial analyse-donations) (nc/get-cache-keys)))
