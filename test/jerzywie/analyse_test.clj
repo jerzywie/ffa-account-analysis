@@ -1,17 +1,14 @@
 (ns jerzywie.analyse-test
-  (:require [jerzywie.analyse :as sut]
-            [jerzywie.test-util :as util]
+  (:require [jerzywie
+             [analyse :as sut]
+             [util :refer [md]]
+             [test-util :as tu]]
             [clojure.test :refer :all]
             [java-time :as j]))
 
 (def test-txns "resources/txns.edn")
 
-(defn md
-  "Helper function to make local-date from year month day array."
-  [[y m d]]
-  (j/local-date y m d))
-
-(use-fixtures :each util/start-with-empty-cache)
+(use-fixtures :each tu/start-with-empty-cache)
 
 (deftest deduce-period-tests
   (are [d1 d2 result] (= (sut/deduce-period (md d1) (md d2)) result)
@@ -28,8 +25,21 @@
 
 (def weekly-first-sept [{:date (md [2021 9 1]) :freq #{:weekly}}])
 
+(def monthly-first-sept [{:date (md [2021 9 1]) :freq #{:monthly}}])
+
+
 (deftest analyse-recency-tests
-  (are [donations date result] (contains? (sut/analyse-recency donations date) :current)
-    weekly-first-sept (md [2021 9 8]) true
-    weekly-first-sept (md [2021 9 5]) true
-    weekly-first-sept (md [2021 9 10]) true))
+  (are [donations date result] (= result
+                                  (contains? (last (sut/analyse-recency date donations))
+                                             :current))
+    weekly-first-sept  (md [2021  9  8]) true
+    weekly-first-sept  (md [2021  9  5]) true
+    weekly-first-sept  (md [2021  9 10]) false
+    weekly-first-sept  (md [2021  8 31]) false
+    weekly-first-sept  (md [2021  9  1]) true
+    monthly-first-sept (md [2021  9 10]) true
+    monthly-first-sept (md [2021 10  1]) true
+    monthly-first-sept (md [2021 10  2]) true
+    monthly-first-sept (md [2021 10  3]) false
+    monthly-first-sept (md [2021  8 31]) false
+    monthly-first-sept (md [2021  9  1]) true))

@@ -35,24 +35,28 @@
   (let [entity (nc/get-cache-value key)
         txns (:txns entity)
         amount-cache (reduce (fn [amounts {:keys [in]}] (conj amounts in)) #{} txns)]
-    (map (fn [amount] (analyse-time-intervals txns amount)) amount-cache)
-    ))
+    (map (fn [amount] (analyse-time-intervals txns amount)) amount-cache)))
 
-(defn analyse-recency [donations-tranche date]
-  (let [last-one (last donations-tranche)
-        day-diff (days-between (:date last-one) date)
-        add-recency (fn [max-day-diff _]
-                      (prn "mdd" max-day-diff "dd" day-diff)
-                      (let [result (if (some #{day-diff} (range (inc max-day-diff)))
-                                     (assoc last-one :current true)
-                                     last-one)]
-                        (prn "ar-res" result)
-                        result))
-        vvv (-> last-one :freq first)]
-    (condp = vvv
-      :weekly :>> #(add-recency 7 %)
-      :monthly :>> #(add-recency 31 %)
-      last-one)))
+(defn analyse-recency [analysis-date donations-tranche]
+  (let [all-but-last (take (dec (count donations-tranche)) donations-tranche)
+        last-one (last donations-tranche)
+        day-diff (days-between (:date last-one) analysis-date)
+        add-recency (fn [max-day-diff]
+                      (if (nil? max-day-diff)
+                        last-one
+                        (if (some #{day-diff} (range (inc max-day-diff)))
+                          (assoc last-one :current true)
+                          last-one)))
+        freq-days (-> last-one :freq first {:weekly 7 :monthly 31})]
+    (conj all-but-last (add-recency freq-days))))
 
-(defn analyse-donations [allocated-transactions]
-  (map #(analyse-donor %) (keys allocated-transactions)))
+(defn analyse-donor-tranches [analysis-date tranches]
+  (map #(analyse-recency analysis-date %) tranches))
+
+(defn analyse-donations [analysis-date allocated-transactions]
+  (->>
+   (keys allocated-transactions)
+   (map analyse-donor)
+   (map #(analyse-donor-tranches analysis-date %))
+   flatten
+   (sort-by :date)))
