@@ -39,10 +39,7 @@
 
 (defn analyse-recency [analysis-date donations-tranche]
   (if (= 1 (count donations-tranche))
-    (do
-      (prn "1dt" (first donations-tranche))
-      (list (update (first donations-tranche) :freq conj :one-off))
-        )
+    (list (update (first donations-tranche) :freq conj :one-off))
     (let [all-but-last (take (dec (count donations-tranche)) donations-tranche)
           last-one (last donations-tranche)
           day-diff (days-between (:date last-one) analysis-date)

@@ -58,4 +58,4 @@
                      raw-in-txns)]
     (doall (map cache-name in-txns))
     (doall (map (partial add-transactions in-txns) (nc/get-cache-keys)))
-    in-txns))
+    @nc/name-cache))
