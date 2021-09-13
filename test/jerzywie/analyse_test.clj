@@ -23,14 +23,14 @@
     [2021  8  3] [2021  8  8] :irregular
     [2021  8  3] [2021  8 12] :irregular))
 
-(def weekly-first-sept [{:date (md [2021 9 1]) :freq #{:weekly}}])
+(def weekly-first-sept [{:freq #{:new-amount}} {:date (md [2021 9 1]) :freq #{:weekly}}])
 
-(def monthly-first-sept [{:date (md [2021 9 1]) :freq #{:monthly}}])
+(def monthly-first-sept [{:freq #{:new-amount}} {:date (md [2021 9 1]) :freq #{:monthly}}])
 
 
 (deftest analyse-recency-tests
   (are [donations date result] (= result
-                                  (contains? (last (sut/analyse-recency date donations))
+                                  (contains? (first (sut/analyse-recency date donations))
                                              :current))
     weekly-first-sept  (md [2021  9  8]) true
     weekly-first-sept  (md [2021  9  5]) true
@@ -43,3 +43,10 @@
     monthly-first-sept (md [2021 10  3]) false
     monthly-first-sept (md [2021  8 31]) false
     monthly-first-sept (md [2021  9  1]) true))
+
+(deftest analyse-recency-tests-one-offs
+  (is (contains?
+       (->
+        (first (sut/analyse-recency nil [{:freq #{:new-amount}}]))
+        :freq)
+       :one-off)))

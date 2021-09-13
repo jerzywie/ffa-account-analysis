@@ -38,17 +38,22 @@
     (map (fn [amount] (analyse-time-intervals txns amount)) amount-cache)))
 
 (defn analyse-recency [analysis-date donations-tranche]
-  (let [all-but-last (take (dec (count donations-tranche)) donations-tranche)
-        last-one (last donations-tranche)
-        day-diff (days-between (:date last-one) analysis-date)
-        add-recency (fn [max-day-diff]
-                      (if (nil? max-day-diff)
-                        last-one
-                        (if (some #{day-diff} (range (inc max-day-diff)))
-                          (assoc last-one :current true)
-                          last-one)))
-        freq-days (-> last-one :freq first {:weekly 7 :monthly 31})]
-    (conj all-but-last (add-recency freq-days))))
+  (if (= 1 (count donations-tranche))
+    (do
+      (prn "1dt" (first donations-tranche))
+      (list (update (first donations-tranche) :freq conj :one-off))
+        )
+    (let [all-but-last (take (dec (count donations-tranche)) donations-tranche)
+          last-one (last donations-tranche)
+          day-diff (days-between (:date last-one) analysis-date)
+          add-recency (fn [max-day-diff]
+                        (if (nil? max-day-diff)
+                          last-one
+                          (if (some #{day-diff} (range (inc max-day-diff)))
+                            (assoc last-one :current true)
+                            last-one)))
+          freq-days (-> last-one :freq first {:weekly 7 :monthly 31})]
+      (conj all-but-last (add-recency freq-days)))))
 
 (defn analyse-donor-tranches [analysis-date tranches]
   (map #(analyse-recency analysis-date %) tranches))
