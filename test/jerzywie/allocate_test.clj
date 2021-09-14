@@ -32,7 +32,10 @@
       {:name "FRED BLOGGS" :group nil}
 
       {:type "Transfer from FRED BLOGGS" :desc "112233 78903456"}
-      {:name "FRED BLOGGS" :group "112233 78903456"})))
+      {:name "FRED BLOGGS" :group "112233 78903456"}
+
+      {:type "Transfer from FRED BLOGGS &" :desc "Transfer from FRED BLOGGS &"}
+      {:name "FRED BLOGGS" :group nil})))
 
 (defn cache-two-unrelated []
   (sut/cache-name {:name "A" :group nil})

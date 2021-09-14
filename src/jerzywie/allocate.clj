@@ -7,10 +7,16 @@
 (def bank-credit "Bank credit")
 (def transfer-from "Transfer from")
 
+(defn strip-last-char-if [s char-string]
+  (if (s/ends-with? s char-string)
+    (apply str (take (dec (count s)) s))
+    s))
+
 (defn strip-prefix [text]
   (-> text
       (s/replace bank-credit "")
       (s/replace transfer-from "")
+      (strip-last-char-if "&")
       s/trim))
 
 (defn make-group [name desc-less-prefix]
