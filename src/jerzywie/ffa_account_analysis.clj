@@ -54,7 +54,7 @@
                                 (csv/get-statement-data)
                                 (process-transactions date))]
 
-        (println "\nDonations at" date)
+        (println (format "Donations at %s" (j/format "YYYY-MM-dd" date)))
         (println (format "Transactions file '%s'" file-name))
         (println "\nCurrent donations")
         (pp/pprint (filter #(contains? % :current) processed-txns))
