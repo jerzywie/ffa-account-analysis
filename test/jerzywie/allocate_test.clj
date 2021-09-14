@@ -1,8 +1,7 @@
 (ns jerzywie.allocate-test
   (:require [jerzywie.allocate :as sut]
             [jerzywie.test-util :as util]
-            [jerzywie.cache :as nc]
-            [clojure.test :refer :all]))
+            [clojure.test :refer [are deftest is testing use-fixtures]]))
 
 (use-fixtures :each util/start-with-empty-cache)
 

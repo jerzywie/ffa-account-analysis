@@ -1,6 +1,6 @@
 (ns jerzywie.csv-test
   (:require [jerzywie.csv :as sut]
-            [clojure.test :refer :all]))
+            [clojure.test :refer [deftest is testing]]))
 
 (def test-csv-file "resources/test-transactions.csv")
 (def expected-keys '(:accinfo :txns))
@@ -22,7 +22,7 @@
     (let [raw-transaction {:date "12 May 2021", :type "Bank credit Billy Holiday", :desc "Bank credit Billy Holiday", :out "", :in "�100.00", :bal "�640.56"}
           fmt-transaction (sut/format-transaction raw-transaction)
           expected {:date (java.time.LocalDate/of 2021 05 12) :type "Bank credit Billy Holiday", :desc "Bank credit Billy Holiday", :out nil, :in 100.00, :bal 640.56}]
-      (is (= fmt-transaction) expected))))
+      (is (= fmt-transaction expected)))))
 
 (deftest get-statement-data-tests
   (let [sd (sut/get-statement-data {:filename test-csv-file})]

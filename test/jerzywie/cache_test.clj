@@ -1,7 +1,7 @@
 (ns jerzywie.cache-test
   (:require [jerzywie.cache :as sut]
             [jerzywie.test-util :as util]
-            [clojure.test :refer :all]))
+            [clojure.test :refer [deftest is use-fixtures]]))
 
 (use-fixtures :each util/start-with-empty-cache)
 
@@ -16,6 +16,6 @@
   (is (= (count (sut/get-cache-keys)) 2))
   (is (= (sut/get-cache-value 1) {:a "A" :b "B"}))
   (is (= (sut/get-cache-value 2) {:q "Q"}))
-  (sut/cache! 1  {:a "AAAA" :x "XYZ"}) 
+  (sut/cache! 1  {:a "AAAA" :x "XYZ"})
   (is (= (count (sut/get-cache-keys)) 2))
   (is (= (sut/get-cache-value 1 "blah") {:a "AAAA" :x "XYZ"})))

@@ -7,7 +7,7 @@
              [util :as u]]
             [java-time :as j]
             [clojure.pprint :as pp]
-            [clojure.string :as string])
+            [clojure.string :as s])
   (:gen-class))
 
 (def local-file "resources/test-transactions.csv")
@@ -21,14 +21,15 @@
 
 (defn print-help []
   (->> ["FFA Bank account transaction analysis."
-        "Usage: transactions-csv yyyy mm dd"
+        ""
+        "Usage: transactions-csv-file date(in format yyyy mm dd)"
         ""
         "Options:"
         " -h prints this message."
-        " transactions-csv = '_' defaults to test transactions file."
+        " transactions-csv-file = '_' defaults to test transactions file."
         ""
         "If no date is supplied the default is today."]
-       (string/join \newline)
+       (s/join \newline)
        (println)))
 
 (defn process-args [args]

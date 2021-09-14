@@ -1,7 +1,6 @@
 (ns jerzywie.csv
   (:require [clojure.string :as s]
-            [java-time :as j]
-            [java-time.interval :as ji]))
+            [java-time :as j]))
 
 (def keyword-convert {:date :date
                       :transactiontype :type
@@ -45,7 +44,7 @@
         transactions (drop 4 all-data)
         txn-headers (keywordise-headers (first transactions))
         txn-map (map #(zipmap txn-headers %) (rest transactions))]
-    {:accinfo (first all-data)
+    {:accinfo acc-info
      :txns (map #(format-transaction %) txn-map)}))
 
 
