@@ -51,8 +51,10 @@
 
 (defn add-transactions [txns key]
   (let [entity (nc/get-cache-value key)
+        account-name (:names entity)
         filter-fn (make-filter-fn entity)
-        filtered-txns (filter filter-fn txns)]
+        filtered-txns (->> (filter filter-fn txns)
+                           (map #(assoc % :account-name account-name)))]
     (nc/cache! key (assoc entity :txns filtered-txns))))
 
 (defn process-income [transactions]
