@@ -1,6 +1,7 @@
 (ns jerzywie.allocate-test
   (:require [jerzywie.allocate :as sut]
             [jerzywie.test-util :as util]
+            [jerzywie.csv :as csv]
             [clojure.test :refer [are deftest is testing use-fixtures]]))
 
 (use-fixtures :each util/start-with-empty-cache)
@@ -87,3 +88,28 @@
       (is (= (-> cache vals second :names count) 1))
       (is (nil? (-> cache vals second :group)))
       (is (= cache cache2)))))
+
+(def test-transactions-csv {:filename "resources/test-transactions.csv"})
+(def BD "BOB DYLAN")
+(def SO "SONNY")
+(def CH "CHER")
+
+(defn get-test-transactions [file-map]
+  (let [raw-tx (csv/get-statement-data file-map)]
+    (sut/process-income (:txns raw-tx))))
+
+(deftest process-income-tests
+  (let [income-tx (vals (get-test-transactions test-transactions-csv))
+        bd-tx (first income-tx)
+        sc-tx (nth income-tx 2)]
+    (is (= (count income-tx) 6) "Check total donors")
+    (is (= (count (:txns bd-tx)) 6) "Check total BD transactions.")
+    (is (= (first (:names bd-tx)) BD) "Check account name.")
+    (is (= (:names bd-tx) #{BD}) "Check account name.")
+    (is (= (-> bd-tx :txns first :account-name first) BD) "Check account-name is propagated to transactions.")
+    (is (= (-> bd-tx :txns first :name) BD) "Check it matches the name.")
+    (is (= (:names sc-tx) #{CH SO}) "Check S+C account-name.")
+    (is (= (:names sc-tx) (-> sc-tx :txns first :account-name)) "Check propagation of S+C account name.")
+    (is (= (count (filter #(= (:name %) CH) (:txns sc-tx))) 16) "Check number of CH txns.")
+    (is (= (count (filter #(= (:name %) SO) (:txns sc-tx))) 4) "Check number of SO txns.")
+    (is (= (:filterby sc-tx) :group) "Check that this is a 'group' account.")))
