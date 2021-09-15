@@ -3,8 +3,7 @@
              [analyse :as sut]
              [util :refer [md]]
              [test-util :as tu]]
-            [clojure.test :refer :all]
-            [java-time :as j]))
+            [clojure.test :refer [are deftest is use-fixtures]]))
 
 (def test-txns "resources/txns.edn")
 

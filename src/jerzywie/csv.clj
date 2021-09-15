@@ -35,8 +35,8 @@
    :in (format-amount in)
    :bal (format-amount bal)})
 
-(defn get-statement-data [filename]
-  (let [all-data (->> (:filename filename)
+(defn get-statement-data [{:keys [filename]}]
+  (let [all-data (->> filename
                       read-statement-file
                       get-quoted-csv-file-lines
                       (map #(s/split % #",")))
