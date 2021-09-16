@@ -50,13 +50,15 @@
   "Analyse transactions in downloaded transactions csv-file."
   [& args]
   (let [{:keys [file-name date help-given]} (process-args args)]
-    (if (not help-given)
-      (let [processed-txns (->> {:filename file-name}
-                                (csv/get-statement-data)
-                                (process-transactions date))]
+    (when-not help-given
+      (let [all-data (->> {:filename file-name}
+                                (csv/get-statement-data))
+            processed-txns (process-transactions date all-data)]
 
         (println (format "Donations at %s" (j/format "YYYY-MM-dd" date)))
         (println (format "Transactions file '%s'" file-name))
+        (println "\nAccount summary")
+        (pp/pprint (:accinfo all-data))
         (println "\nCurrent donations")
         (pp/pprint (filter #(contains? % :current) processed-txns))
         (println "\nOne-offs")
