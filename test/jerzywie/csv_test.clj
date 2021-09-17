@@ -12,7 +12,8 @@
 
 (deftest keywordise-headers-converts-to-correct-headers
   (testing "keywordise-headers converts to correct headers."
-    (is (= '(:date :type :desc :out :in :bal) (sut/keywordise-headers ["Date" "Transaction type" "Description" "Paid out" "Paid in" "Balance"])))))
+    (is (= '(:date :type :desc :out :in :bal)
+           (sut/keywordise-transaction-headers ["Date" "Transaction type" "Description" "Paid out" "Paid in" "Balance"])))))
 
 (deftest format-amount-tests
   (testing "format-amount handles conversion correctly."

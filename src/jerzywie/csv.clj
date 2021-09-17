@@ -50,16 +50,19 @@
    :in (format-amount in)
    :bal (format-amount bal)})
 
-(defn get-statement-data [{:keys [filename]}]
-  (let [all-data (->> filename
-                      read-statement-file
-                      get-quoted-csv-file-lines
-                      (map #(s/split % #",")))
-        acc-info (process-header-lines (take 3 all-data))
-        transactions (drop 4 all-data)
+(defn transform-raw-data [raw-data]
+  (let [acc-info (process-header-lines (take 3 raw-data))
+        transactions (drop 4 raw-data)
         txn-headers (keywordise-transaction-headers (first transactions))
         txn-map (map #(zipmap txn-headers %) (rest transactions))]
     {:accinfo acc-info
      :txns (map #(format-transaction %) txn-map)}))
+
+(defn get-statement-data [{:keys [filename]}]
+  (let [raw-data (->> filename
+                      read-statement-file
+                      get-quoted-csv-file-lines
+                      (map #(s/split % #",")))]
+    (transform-raw-data raw-data)))
 
 
